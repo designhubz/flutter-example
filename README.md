@@ -14,7 +14,7 @@ This project highlights the integration of [DesignHubz Try-On AR](https://design
 
 ## Usage
 
-###Depend on it
+### Depend on it
 Run this command:
 
 With Flutter:
@@ -29,7 +29,7 @@ designhubz: ^0.0.2
 ```
 Alternatively, your editor might support `flutter pub get`. Check the docs for your editor to learn more.
 
-###Import it
+### Import it
 Now in your Dart code, you can use:
 ```groovy
 import 'package:designhubz/designhubz.dart';
