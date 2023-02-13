@@ -1,0 +1,26 @@
+name: try_on_example
+description: A new Flutter project.
+
+publish_to: 'none'
+
+
+version: 1.0.2+32
+
+environment:
+  sdk: '>=2.18.5 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  permission_handler: ^10.2.0
+  designhubz:
+    path: ../
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
