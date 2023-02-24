@@ -29,7 +29,12 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
   /// In this example, we are using a dummy user id and product id,
   /// make sure to use your own user id and product id
   String userId = "1234";
-  String productId = "000241-2906";
+  String productId = "000239-2604";
+  String productId2 = "000230-1201";
+  String productId3 = "000237-1306";
+  String productId4 = "000104-0107";
+  String productId5 = "000117-0507";
+  String productId6 = "000246-2906";
 
   final List<String> statusUpdates = [];
 
@@ -141,7 +146,12 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
             /// buttons to call different methods of [TryOnController]
             children: [
               buildSetUserIdWidgetButton(),
-              buildLoadProductButton(),
+              buildLoadProductButton(productId, "Prod 1"),
+              buildLoadProductButton(productId2, "Prod 2"),
+              buildLoadProductButton(productId3, "Prod 3"),
+              buildLoadProductButton(productId4, "Prod 4"),
+              buildLoadProductButton(productId5, "Prod 5"),
+              buildLoadProductButton(productId6, "Prod 6"),
               buildSwitchModeButton(),
               buildRecommendationButton(),
               buildTakeSnapshotButton(),
@@ -164,35 +174,35 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
               builder: (context) {
                 return AlertDialog(
                     content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      initialValue: userId,
-                      onChanged: (value) async {
-                        userId = value;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            await _tryOnController.setUserId(userId);
-                            if (mounted) {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("User ID Set Successfully"),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error:$e")));
-                          }
-                        },
-                        child: const Text('Set User Id')),
-                  ],
-                ));
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          initialValue: userId,
+                          onChanged: (value) async {
+                            userId = value;
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                            onPressed: () async {
+                              try {
+                                await _tryOnController.setUserId(userId);
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("User ID Set Successfully"),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Error:$e")));
+                              }
+                            },
+                            child: const Text('Set User Id')),
+                      ],
+                    ));
               });
         },
         child: const Text('Set User Id'),
@@ -200,51 +210,35 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
     );
   }
 
-  /// load the product defined by [productId]
+  /// load the product defined by [productToLoadId]
   /// show a [SnackBar] to indicate loaded product detail or failure
-  Widget buildLoadProductButton() {
+  Widget buildLoadProductButton(String productToLoadId, String buttonTitle) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ElevatedButton(
         onPressed: () async {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                    content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      initialValue: productId,
-                      onChanged: (value) async {
-                        productId = value;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                        onPressed: () async {
-                          try {
-                            final loadedProduct =
-                                await _tryOnController.loadProduct(productId);
-                            if (mounted) {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(
-                                        "Product Loaded Successfully $loadedProduct")),
-                              );
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error:$e")));
-                          }
-                        },
-                        child: const Text('Load Product')),
-                  ],
-                ));
-              });
+          try {
+            final loadedProduct =
+            await _tryOnController.loadProduct(productToLoadId,
+                // optional callback to get progress updates
+                // related to loading product
+                progressHandler: (progress) {
+                  // show loading progress in UI overlay for this example
+                  addStatusUpdate("Product Loading Progress: $progress");
+                });
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                    Text("Product Loaded Successfully $loadedProduct")),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("Error:$e")));
+          }
         },
-        child: const Text('Load Product'),
+        child: Text(buttonTitle),
       ),
     );
   }
@@ -370,10 +364,10 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
         children: statusUpdates
             .map(
               (e) => Text(
-                e,
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
+            e,
+            style: const TextStyle(color: Colors.white),
+          ),
+        )
             .toList(),
       ),
     );
