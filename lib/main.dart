@@ -52,6 +52,14 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
     super.initState();
   }
 
+  void initARExperience() async {
+    await _tryOnController.setUserId(userId);
+    await _tryOnController.loadProduct(productId, progressHandler: (progress) {
+      addStatusUpdate("Product Loading Progress: $progress");
+    });
+    await _tryOnController.switchMode(mode: TryOnWidgetMode.modeTryOn);
+  }
+
   /// before starting the [TryOnWidget] try-on mode, make sure to check for camera permission
   /// and request for permission if not granted using [permission_handler](https://pub.dev/packages/permission_handler)
   /// or any other such package package
@@ -118,6 +126,7 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
                     /// save the controller for later use, see buttons in bottom of
                     /// the page for its usage
                     _tryOnController = controller;
+                    initARExperience();
                   },
                 ),
               ),
