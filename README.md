@@ -25,7 +25,7 @@ $ flutter pub add designhubz
 This will add a line like this to your package's pubspec.yaml (and run an implicit `flutter pub get`):
 ```groovy
 dependencies:
-designhubz: ^0.0.5
+designhubz: ^0.0.7
 ```
 Alternatively, your editor might support `flutter pub get`. Check the docs for your editor to learn more.
 

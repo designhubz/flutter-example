@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   permission_handler: ^10.2.0
-  designhubz: ^0.0.2
+  designhubz: ^0.0.7
 
 
 dev_dependencies:
