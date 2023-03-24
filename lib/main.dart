@@ -38,6 +38,8 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
 
   final List<String> statusUpdates = [];
 
+  bool isTryOnRecovering = false;
+
   /// [TryOnWidget] have many callbacks for different statuses like [onUpdateTrackingStatus]
   /// and [onUserUpdateInfo] which we are showing above the [TryOnWidget] in this example
   void addStatusUpdate(String status) {
@@ -102,36 +104,60 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black, width: 3),
                 ),
-                child: TryOnWidget(
-                  /// make sure to provided your own organization id
-                  organizationId: "23049412",
+                child: Opacity(
+                  opacity: isTryOnRecovering ? 0.1 : 1,
+                  child: TryOnWidget(
+                    /// make sure to provided your own organization id
+                    organizationId: "23049412",
 
-                  /// all these callbacks provide different statuses updates
-                  /// In this example, we are showing it in UI through [buildStatusUpdatesWidget()]
-                  onUpdateTrackingStatus: (trackingStatus) {
-                    addStatusUpdate("Tracking Status: $trackingStatus");
-                  },
-                  onUpdateTryOnStatus: (tryOnStatus) {
-                    addStatusUpdate("TryOn Status: $tryOnStatus");
-                  },
-                  onUpdateUserInfo: (userInfo) {
-                    addStatusUpdate("User Info: $userInfo");
-                  },
-                  onError: (error) {
-                    addStatusUpdate("Error: $error");
-                  },
+                    onTryOnRecovering: (isRecovering) {
+                      setState(() {
+                        isTryOnRecovering = isRecovering;
+                      });
+                    },
 
-                  /// [onTryOnReady] will be called once the [TryOnWidget] is ready
-                  onTryOnReady: (controller) {
-                    /// save the controller for later use, see buttons in bottom of
-                    /// the page for its usage
-                    _tryOnController = controller;
-                    initARExperience();
-                  },
+                    /// all these callbacks provide different statuses updates
+                    /// In this example, we are showing it in UI through [buildStatusUpdatesWidget()]
+                    onUpdateTrackingStatus: (trackingStatus) {
+                      addStatusUpdate("Tracking Status: $trackingStatus");
+                    },
+                    onUpdateTryOnStatus: (tryOnStatus) {
+                      addStatusUpdate("TryOn Status: $tryOnStatus");
+                    },
+                    onUpdateUserInfo: (userInfo) {
+                      addStatusUpdate("User Info: $userInfo");
+                    },
+                    onError: (error) {
+                      addStatusUpdate("Error: $error");
+                    },
+
+                    /// [onTryOnReady] will be called once the [TryOnWidget] is ready
+                    onTryOnReady: (controller) {
+                      /// save the controller for later use, see buttons in bottom of
+                      /// the page for its usage
+                      _tryOnController = controller;
+                      initARExperience();
+                    },
+                  ),
                 ),
               ),
             );
           }),
+          if (isTryOnRecovering)
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: Colors.white,
+              child: const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Try-On is recovering, please wait',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+            ),
 
           /// show the status updates in bottom of the page
           Align(

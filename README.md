@@ -117,13 +117,14 @@ This function does not have any return value.
 
 ## `loadProduct()`
 
-It will load the provided `productId` associated product.
+It will load the provided `productId` associated product. You can pass a optional `progressHandler` callback to get the progress of the loading product.
 
 ### Request
 
-| Parameter   | Type     | Description                  |
-| :---------- | :------- | :--------------------------- |
-| `productId` | `string` | **Required**. The Product ID |
+| Parameter         | Type                             | Description                                                           |
+| :---------------- | :------------------------------- | :-------------------------------------------------------------------- |
+| `productId`       | `string`                         | **Required**. The Product ID                                          |
+| `progressHandler` | `ProductLoadingProgressCallback` | **Optional**. Callback to receive the loading progress of the product |
 
 ### Response
 
@@ -289,5 +290,13 @@ It will be called when any error is happened.
 | Parameter | Type     | Description             |
 | :-------- | :------- | :---------------------- |
 | `error`   | `string` | Error while interacting |
+
+## `onTryOnRecovering`
+
+TryOn widget can automatically recover in case of a crash due to memory pressure. The recovery process load back the user, any loaded product and the mode that was being used. While the TryOnWidget recovers, you can show a loading indicator by checking the [isInRecoveryProcess] flag
+
+| Parameter             | Type   | Description                                   |
+| :-------------------- | :----- | :-------------------------------------------- |
+| `isInRecoveryProcess` | `bool` | Indicate whether TryOn is in recovery process |
 
 Copyright 2023 Designhubz. All rights reserved.
