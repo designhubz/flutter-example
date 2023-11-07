@@ -25,7 +25,7 @@ $ flutter pub add designhubz
 This will add a line like this to your package's pubspec.yaml (and run an implicit `flutter pub get`):
 ```groovy
 dependencies:
-designhubz: ^0.0.7
+designhubz: ^1.0.0
 ```
 Alternatively, your editor might support `flutter pub get`. Check the docs for your editor to learn more.
 
@@ -38,29 +38,37 @@ import 'package:designhubz/designhubz.dart';
 
 ### Android
 
-1. Set the `minSdkVersion` in `android/app/build.gradle`:
+1. Set the `minSdkVersion` in `android/app/build.gradle` to 21 and `compileSDKVersion` to at least 34:
 
 ```groovy
 android {
+    compileSdkVersion 34
+
+    ...
+    
     defaultConfig {
         minSdkVersion 21
     }
 }
 ```
 
+### iOS
+
+No additional steps are required for iOS.
+
 ### Flutter
 
-Grant the camera permission on both Android and iOS using any package of your choice. For example, [permission_handler](https://pub.dev/packages/permission_handler) before starting `TryOnWidget`.
+You must grant the camera permission on both Android and iOS. You can use any package of your choice to do this. For example, [permission_handler](https://pub.dev/packages/permission_handler) before using any try on widget from this package.
 
-Add `TryOnWidget` to your widget tree.
+Add `EyewearTryOnWidget` for eyewear try on and `CCLTryOnWidget` for contact lens try on to your widget tree.
 
-The widget can be controlled with the `TryOnController` that is passed to the `TryOnWidget`'s `onTryOnReady` callback.
+The widget can be controlled with the respective `TryOnController` that is passed to the widget's `onTryOnReady` callback.
 
-See the [example](./example) directory for a complete example app, and some highlights below.
+Refer to the [example](./example) for a complete sample app. Check [example/lib/eyewear_tryon_demo_page.dart](./example/lib/eyewear_tryon_demo_page.dart) for comprehensive Eyewear widget usage and [example/lib/ccl_tryon_demo_page.dart](./example/lib/ccl_tryon_demo_page.dart) for the contact lens widget usage.
 
 ### Snippets
 
-1. Add `TryOnWidget`
+1. Add `EyewearTryOnWidget`
 
 ```dart
 import 'package:designhubz/designhubz.dart';
@@ -79,7 +87,7 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: TryOnWidget(
+      body: EyewearTryOnWidget(
         organizationId: "your_organization_id",
         onTryOnReady: (controller) {
           _tryOnController = controller;
@@ -91,9 +99,15 @@ class _DesignHubzDemoState extends State<DesignHubzDemo> {
 
 ```
 
-2. Once the `TryOnController` is received from `onTryOnReady` callback, you can call various methods on it.
+2. Once the `EyewearTryOnController` is received from `onTryOnReady` callback, you can call various methods on it.
 
-# TryOnController Methods
+Same can be done for `CCLTryOnWidget` and its controller `CCLTryOnController`.
+
+# TryOnControllers Common Methods
+
+A lot of the methods are common in `EyewearTryOnController` and `CCLTryOnController`. The common one are discussed first.
+
+All methods can throw `TryOnError` if communication between TryOn Widget and app is unsuccessful due to network or other errors. More details regarding the thrown error is in `TryOnError`'s `message` parameter.
 
 ## `setUserId()`
 
@@ -128,30 +142,20 @@ It will load the provided `productId` associated product. You can pass a optiona
 
 ### Response
 
-It returns `EyewearProduct` if succeeds.
+It returns `VTOProduct` if succeeds.
 
 ```dart
-EyewearProduct {
+VTOProduct {
   String productKey;
   List<String> variations;
 }
 ```
 
-## `switchMode()`
-
-It will switch the mode between `3d` and `tryon`
-
-### Request
-
-This function does not have any required parameters.
-
-### Response
-
-This function does not have any return value.
+It can throw `TryOnError` if `productId` is invalid, or product cannot be found.
 
 ## `takeSnapshot()`
 
-It will take a snapshot image
+It will take a snapshot image of the content displayed inside the try on widget.
 
 ### Request
 
@@ -183,6 +187,22 @@ FutureBuilder(
   },
 );
 ```
+
+# `EyewearTryOnController` specific methods
+
+These additional methods are only available in `EyewearTryOnController`
+
+## `switchMode()`
+
+It will switch the mode between `3d` and `tryon`
+
+### Request
+
+This function does not have any required parameters.
+
+### Response
+
+This function does not have any return value.
 
 ## `fetchRecommendations()`
 
@@ -226,7 +246,7 @@ Example response:
 
 # Event Handlers
 
-`TryOnWidget` provide the following event handlers callbacks:
+Both `EyewearTryOnWidget` and `CCLTryOnWidget` provide the following event handlers callbacks:
 
 ## `onUpdateTryonStatus`
 
@@ -237,6 +257,48 @@ It will be called when the status of widget is changed.
 | Parameter | Type          | Description                                      |
 | :-------- | :------------ | :----------------------------------------------- |
 | `status`  | `TryOnStatus` | Status of the widget (`idle`, `loading`, `read`) |
+
+## `onError`
+
+It will be called when an error occurs.
+
+### Params
+
+| Parameter | Type     | Description             |
+| :-------- | :------- | :---------------------- |
+| `error`   | `string` | Error while interacting |
+
+## `onTryOnRecovering`
+
+TryOn widget can automatically recover in case of a crash due to memory pressure. This rarely happens on low-end android devices.
+
+The recovery process loads back the user, any loaded product and the mode that was being used. While the TryOnWidget recovers, you can show a loading indicator by checking the [isInRecoveryProcess] flag
+
+| Parameter             | Type   | Description                                   |
+| :-------------------- | :----- | :-------------------------------------------- |
+| `isInRecoveryProcess` | `bool` | Indicate whether TryOn is in recovery process |
+
+# `EyewearTryOnWidget` specific event handlers
+
+These event handlers are only available in `EyewearTryOnWidget` widget
+
+## `onUpdateTrackingStatus`
+
+It will be called when the **face** tracking status is changed.
+
+### Params
+
+| Parameter        | Type                  | Description            |
+| :--------------- | :-------------------- | :--------------------- |
+| `trackingStatus` | `TryOnTrackingStatus` | Status of the tracking |
+
+The `trackingStatus` will be one of these values
+
+- `idle`
+- `cameraNotFound`
+- `faceNotFound`
+- `analyzing`
+- `tracking`
 
 ## `onUpdateUserInfo`
 
@@ -262,41 +324,5 @@ class TryOnUserInfo {
   num ipd;
 }
 ```
-
-## `onUpdateTrackingStatus`
-
-It will be called when the **face** tracking status is changed.
-
-### Params
-
-| Parameter        | Type                  | Description            |
-| :--------------- | :-------------------- | :--------------------- |
-| `trackingStatus` | `TryOnTrackingStatus` | Status of the tracking |
-
-The `trackingStatus` will be one of these values
-
-- `idle`
-- `cameraNotFound`
-- `faceNotFound`
-- `analyzing`
-- `tracking`
-
-## `onError`
-
-It will be called when any error is happened.
-
-### Params
-
-| Parameter | Type     | Description             |
-| :-------- | :------- | :---------------------- |
-| `error`   | `string` | Error while interacting |
-
-## `onTryOnRecovering`
-
-TryOn widget can automatically recover in case of a crash due to memory pressure. The recovery process load back the user, any loaded product and the mode that was being used. While the TryOnWidget recovers, you can show a loading indicator by checking the [isInRecoveryProcess] flag
-
-| Parameter             | Type   | Description                                   |
-| :-------------------- | :----- | :-------------------------------------------- |
-| `isInRecoveryProcess` | `bool` | Indicate whether TryOn is in recovery process |
 
 Copyright 2023 Designhubz. All rights reserved.
